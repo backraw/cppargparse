@@ -218,57 +218,94 @@ public:
     }
 
 
-    /**
-     * @brief Generate and return the usage string.
-     *
-     * @return The generated usage string.
-     */
-    const std::string usage() const
+    const size_t usage_argid_length() const
     {
-        // Find the maximum (argument ID, argument alternative ID) length
-        size_t max_id_length = 0;
+        size_t argid_length = 0;
 
         for (const auto &cmdarg : m_cmdargs)
         {
             const size_t id_length = cmdarg.id.size() + cmdarg.id_alt.size();
 
-            if (id_length > max_id_length)
+            if (id_length > argid_length)
             {
-                max_id_length = id_length;
+                argid_length = id_length;
             }
         }
 
-        // Add 3 more spaces
-        max_id_length += 3;
+        return argid_length + 3;
+    }
+
+    const std::ostringstream usage_posargs() const
+    {
+        std::ostringstream usage_posargs_stream;
+
+        return usage_posargs_stream;
+    }
+
+    const std::ostringstream usage_cmdargs() const
+    {
+        const size_t argid_length = usage_argid_length();
 
 
-        // Generate the usage string
-        std::ostringstream usage_string;
-        usage_string << "Usage: " << m_application_description << '\n' << '\n';
+        std::ostringstream usage_cmdargs_stream;
 
         for (const auto &cmdarg : m_cmdargs)
         {
-            usage_string << ' ' << ' ' << cmdarg.id;
+            usage_cmdargs_stream << ' ' << ' ' << cmdarg.id;
 
             if (!cmdarg.id_alt.empty())
             {
-                usage_string << '|' << cmdarg.id_alt;
+                usage_cmdargs_stream << '|' << cmdarg.id_alt;
             }
 
-            for (size_t i = 0; i < max_id_length; ++i)
+            for (size_t i = 0; i < argid_length; ++i)
             {
-                usage_string << ' ';
+                usage_cmdargs_stream << ' ';
             }
 
             if (!cmdarg.description.empty())
             {
-                usage_string << cmdarg.description;
+                usage_cmdargs_stream << cmdarg.description;
             }
 
-            usage_string << '\n';
+            usage_cmdargs_stream << '\n';
         }
 
-        return usage_string.str();
+        return usage_cmdargs_stream;
+    }
+
+    const std::ostringstream usage_stream() const
+    {
+        std::ostringstream stream;
+        stream << usage_posargs().str() << usage_cmdargs().str();
+
+        return stream;
+    }
+
+    const std::string usage(const std::string &header) const
+    {
+        std::ostringstream stream;
+        stream << header << '\n' << '\n' << usage_stream().str();
+
+        return stream.str();
+    }
+
+    const std::string usage(const std::ostringstream &header) const
+    {
+        return usage(header.str());
+    }
+
+    const std::string usage() const
+    {
+        std::ostringstream stream;
+        stream << m_application_description;
+
+        if (m_cmdargs.size() > 0)
+        {
+
+        }
+
+        return usage(stream);
     }
 
 
